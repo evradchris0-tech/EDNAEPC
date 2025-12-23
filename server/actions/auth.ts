@@ -12,7 +12,7 @@ export async function login(data: LoginFormData): Promise<ActionResponse> {
   try {
     // Validation des données
     const validatedData = loginSchema.safeParse(data)
-    
+
     if (!validatedData.success) {
       return {
         success: false,
@@ -22,11 +22,15 @@ export async function login(data: LoginFormData): Promise<ActionResponse> {
     }
 
     // Tentative de connexion
-    await signIn("credentials", {
+    const result = await signIn("credentials", {
       email: validatedData.data.email,
       password: validatedData.data.password,
       redirect: false,
     })
+
+    if (result?.error) {
+      return { success: false, error: "Email ou mot de passe incorrect" }
+    }
 
     return { success: true, message: "Connexion réussie" }
   } catch (error) {
@@ -40,7 +44,7 @@ export async function login(data: LoginFormData): Promise<ActionResponse> {
           return { success: false, error: "Erreur de connexion" }
       }
     }
-    
+
     // Rethrow si c'est une redirection (comportement normal d'Auth.js)
     throw error
   }
